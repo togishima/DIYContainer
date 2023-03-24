@@ -33,7 +33,7 @@ class DIYContainer implements ContainerInterface
         // コールバックの場合は実行
         if (array_key_exists($id, $this->definitions) && is_callable($this->definitions[$id])) {
             $callable = $this->definitions[$id];
-            return $callable($this);
+            return $callable();
         }
         // クラス名なら生成を試みる
         try {

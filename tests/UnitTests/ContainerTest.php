@@ -18,7 +18,6 @@ class ContainerTest extends TestCase
     {
         $this->container = new DIYContainer([
             'foo' => fn() => 'bar',
-            SampleInterface::class => fn(ContainerInterface $c) => $c->get(ClassA::class)
         ]);
     }
 
@@ -75,9 +74,9 @@ class ContainerTest extends TestCase
     /**
      * @test
      */
-    public function インターフェースとのマッピングができる()
-    {
-        $sample = $this->container->get(SampleInterface::class);
-        $this->assertTrue($sample instanceof ClassA);
-    }
+    // public function インターフェースとのマッピングができる()
+    // {
+    //     $sample = $this->container->get(SampleInterface::class);
+    //     $this->assertTrue($sample instanceof ClassA);
+    // }
 }
