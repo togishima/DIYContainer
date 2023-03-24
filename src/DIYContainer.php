@@ -36,19 +36,7 @@ class DIYContainer implements ContainerInterface
             return $callable();
         }
         // クラス名なら生成を試みる
-        try {
-            return $this->make($id);
-        } catch (Error|ReflectionException $e) {
-            throw new NotFoundException(
-                message: 'Entry Not Found',
-                previous: $e
-            );
-        } catch(Throwable $th) {
-            throw new ContainerException(
-                message: 'Failed resolving ' . $id,
-                previous: $th
-            );
-        }
+        return $this->make($id);
     }
 
     private function make(string $id)
