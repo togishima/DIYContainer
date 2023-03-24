@@ -1,2 +1,1 @@
-# php-skeleton
-a starter for writing php
+# 簡易自作コンテナ
