@@ -54,31 +54,9 @@ class DIYContainer implements ContainerInterface
     private function make(string $id)
     {
         if (!array_key_exists($id, $this->instances)) {
-            $dependencies = $this->resolveDependencies($id);
-            $this->instances[$id] = new $id(...$dependencies);
+            $this->instances[$id] = new $id();
         }
         return $this->instances[$id];
-    }
-
-    /**
-     * 
-     *
-     * @param class-string $id
-     * @return array<mixed>
-     */
-    private function resolveDependencies(string $id)
-    {
-        /** @see https://www.php.net/manual/ja/reflectionclass.getconstructor.php */
-        $constructor = (new ReflectionClass($id))->getConstructor();
-        $dependencies = [];
-        /** @see https://www.php.net/manual/ja/reflectionfunctionabstract.getparameters.php */
-        foreach ($constructor->getParameters() as $param) {
-            /** @see https://www.php.net/manual/ja/reflectionparameter.gettype.php */
-            if ($param->getType() instanceof ReflectionNamedType) {
-                $dependencies[] = $this->get($param->getType()->getName());
-            }
-        }
-        return $dependencies;
     }
 
     public function has(string $id): bool

@@ -64,12 +64,12 @@ class ContainerTest extends TestCase
     /**
      * @test
      */
-    public function 入れ子になっているクラスを解決できる()
-    {
-        $sample = $this->container->get(ClassA::class);
-        // ClassAの内部でClassBのfuga()が呼ばれるはず
-        $this->assertSame('piyo', $sample->hoge());
-    }
+    // public function 入れ子になっているクラスを解決できる()
+    // {
+    //     $sample = $this->container->get(ClassA::class);
+    //     // ClassAの内部でClassBのfuga()が呼ばれるはず
+    //     $this->assertSame('piyo', $sample->hoge());
+    // }
 
     /**
      * @test
