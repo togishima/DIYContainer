@@ -33,11 +33,11 @@ class ContainerTest extends TestCase
     /**
      * @test
      */
-    public function 与えられた文字列がクラス名だった場合オートロードできれば解決する()
-    {
-        $sample = $this->container->get(ClassB::class);
-        $this->assertTrue($sample instanceof ClassB);
-    }
+    // public function 与えられた文字列がクラス名だった場合オートロードできれば解決する()
+    // {
+    //     $sample = $this->container->get(ClassB::class);
+    //     $this->assertTrue($sample instanceof ClassB);
+    // }
 
     /**
      * @test

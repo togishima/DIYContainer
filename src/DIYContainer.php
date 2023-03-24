@@ -41,10 +41,6 @@ class DIYContainer implements ContainerInterface
 
     private function make(string $id)
     {
-        if (!array_key_exists($id, $this->instances)) {
-            $this->instances[$id] = new $id();
-        }
-        return $this->instances[$id];
     }
 
     public function has(string $id): bool
