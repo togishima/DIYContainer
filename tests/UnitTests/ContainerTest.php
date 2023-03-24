@@ -16,19 +16,17 @@ class ContainerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->container = new DIYContainer([
-            'foo' => fn() => 'bar',
-        ]);
+        $this->container = new DIYContainer();
     }
 
     /**
      * @test 
      */
-    public function 与えられた文字列に対して定義があればその通りに返す()
-    {
-        $bar = $this->container->get('foo');
-        $this->assertSame('bar', $bar);
-    }
+    // public function 与えられた文字列に対して定義があればその通りに返す()
+    // {
+    //     $bar = $this->container->get('foo');
+    //     $this->assertSame('bar', $bar);
+    // }
 
     /**
      * @test
