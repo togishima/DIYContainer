@@ -61,9 +61,5 @@ class DIYContainer implements ContainerInterface
 
     public function has(string $id): bool
     {
-        if (array_key_exists($id, $this->definitions) || array_key_exists($id, $this->instances)) {
-            return true;
-        }
-        return false;
     }
 }

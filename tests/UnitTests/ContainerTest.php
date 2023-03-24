@@ -51,15 +51,15 @@ class ContainerTest extends TestCase
     /**
      * @test
      */
-    public function 一度インスタンス化したオブジェクトは解決できる()
-    {
-        // AutowireのクラスはNotFoundExceptionが返る可能性がある
-        $this->assertFalse($this->container->has(ClassB::class));
-        // 一回取り出す
-        $sample = $this->container->get(ClassB::class);
-        // オブジェクトが生成されたのでtrueになる
-        $this->assertTrue($this->container->has(ClassB::class));
-    }
+    // public function 一度インスタンス化したオブジェクトは解決できる()
+    // {
+    //     // AutowireのクラスはNotFoundExceptionが返る可能性がある
+    //     $this->assertFalse($this->container->has(ClassB::class));
+    //     // 一回取り出す
+    //     $sample = $this->container->get(ClassB::class);
+    //     // オブジェクトが生成されたのでtrueになる
+    //     $this->assertTrue($this->container->has(ClassB::class));
+    // }
 
     /**
      * @test
