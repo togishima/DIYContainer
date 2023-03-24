@@ -21,9 +21,17 @@ class DIYContainer implements ContainerInterface
 
     public function get(string $id)
     {
+        /**
+         * 文字列に対応した「何か」を返す
+         * 返せるものがなければNotFoundExceptionを投げる
+         */
     }
 
     public function has(string $id): bool
     {
+        /**
+         * 渡された文字列に対して返せるものがあるならtrue
+         * このメソッドがfalseを還したらget()はNotFountExceptionを返す
+         */
     }
 }
