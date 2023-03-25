@@ -2,6 +2,8 @@
 
 namespace PHPerKaigi2023;
 
+use PHPerKaigi2023\Exceptions\ContainerException;
+use PHPerKaigi2023\Exceptions\NotFoundException;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -45,6 +47,22 @@ class DIYContainer implements ContainerInterface
 
     private function resolve(string $id)
     {
-        
+        if (array_key_exists($id, $this->instances)) {
+            return $this->instances[$id];
+        }
+        if (array_key_exists($id, $this->definitions) && is_callable($this->definitions[$id])) {
+            $callable = $this->definitions[$id];
+            return $callable();
+        } 
+        // has()でバリデートされているのでここに来るのはclass-string
+        try {
+            $this->instances[$id] = $id();
+            return $this->instances[$id];
+        } catch (\Throwable $th) {
+            throw new ContainerException(
+                message: 'Failed resolving ' . $id,
+                previous: $th
+            );
+        }
     }
 }
