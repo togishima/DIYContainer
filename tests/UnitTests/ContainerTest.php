@@ -57,19 +57,19 @@ class ContainerTest extends TestCase
     /**
      * @test
      */
-    // public function 与えられた文字列がクラス名だった場合オートロードできれば解決する()
-    // {
-    //     $sample = $this->container->get(ClassB::class);
-    //     $this->assertTrue($sample instanceof ClassB);
-    // }
+    public function 与えられた文字列がクラス名だった場合オートロードできれば解決する()
+    {
+        $sample = $this->container->get(ClassB::class);
+        $this->assertTrue($sample instanceof ClassB);
+    }
 
     /**
      * @test
      */
-    // public function 入れ子になっているクラスを解決できる()
-    // {
-    //     $sample = $this->container->get(ClassA::class);
-    //     // ClassAの内部でClassBのfuga()が呼ばれるはず
-    //     $this->assertSame('piyo', $sample->hoge());
-    // }
+    public function 入れ子になっているクラスを解決できる()
+    {
+        $sample = $this->container->get(ClassA::class);
+        // ClassAの内部でClassBのfuga()が呼ばれるはず
+        $this->assertSame('piyo', $sample->hoge());
+    }
 }

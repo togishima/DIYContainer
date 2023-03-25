@@ -5,6 +5,8 @@ namespace PHPerKaigi2023;
 use PHPerKaigi2023\Exceptions\ContainerException;
 use PHPerKaigi2023\Exceptions\NotFoundException;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
+use ReflectionNamedType;
 
 /**
  * PSR-11実装の簡易自作コンテナ
@@ -12,12 +14,15 @@ use Psr\Container\ContainerInterface;
 class DIYContainer implements ContainerInterface
 {
     /**
+     * @var array<string,mixed> $instances 解決されたものを一時的に保存しておく配列
+     */
+    private array $instances = [];
+
+    /**
      * @param array<string,Callable|class-string> $definitions 定義（マッピング）
-     * @param array<string,mixed> $instances 解決されたものを一時的に保存しておく配列
      */
     public function __construct(
-        private array $definitions,
-        private array $instances = []
+        private array $definitions
     ){
     }
 
@@ -62,7 +67,8 @@ class DIYContainer implements ContainerInterface
         } 
         // has()でバリデートされているのでここに来るのはclass-string
         try {
-            $this->instances[$id] = new $id();
+            $dependencies = $this->resolveDependencies($id);
+            $this->instances[$id] = new $id(...$dependencies);
             return $this->instances[$id];
         } catch (\Throwable $th) {
             throw new ContainerException(
@@ -70,5 +76,26 @@ class DIYContainer implements ContainerInterface
                 previous: $th
             );
         }
+    }
+
+    /**
+     * 対象クラスのコンストラクタで定義されているクラスをインスタンス化
+     *
+     * @param string $className
+     * @return array
+     */
+    private function resolveDependencies(string $className): array
+    {
+        /** @see https://www.php.net/manual/ja/reflectionclass.getconstructor.php */
+        $constructor = (new ReflectionClass($className))->getConstructor();
+        $dependencies = [];
+        /** @see https://www.php.net/manual/ja/reflectionfunctionabstract.getparameters.php */
+        foreach ($constructor->getParameters() as $param) {
+            /** @see https://www.php.net/manual/ja/reflectionparameter.gettype.php */
+            if ($param->getType() instanceof ReflectionNamedType) {
+                $dependencies[] = $this->get($param->getType()->getName());
+            }
+        }
+        return $dependencies;
     }
 }
