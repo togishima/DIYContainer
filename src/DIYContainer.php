@@ -25,6 +25,10 @@ class DIYContainer implements ContainerInterface
          * 文字列に対応した「何か」を返す
          * 返せるものがなければNotFoundExceptionを投げる
          */
+        if (!$this->has($id)) {
+            throw new NotFoundException('Entry for ' . $id . ' not found');
+        }
+        return $this->resolve($id);
     }
 
     public function has(string $id): bool
@@ -33,5 +37,14 @@ class DIYContainer implements ContainerInterface
          * 渡された文字列に対して返せるものがあるならtrue
          * このメソッドがfalseを還したらget()はNotFountExceptionを返す
          */
+        $isResolvedAlready = array_key_exists($id, $this->instances);
+        $definitionExists = array_key_exists($id, $this->definitions);
+        
+        return $isResolvedAlready || $definitionExists;
+    }
+
+    private function resolve(string $id)
+    {
+        
     }
 }
