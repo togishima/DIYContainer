@@ -41,8 +41,14 @@ class DIYContainer implements ContainerInterface
          */
         $isResolvedAlready = array_key_exists($id, $this->instances);
         $definitionExists = array_key_exists($id, $this->definitions);
+        try {
+            $this->resolve($id);
+            $resolvable = true;
+        } catch (\Throwable $th) {
+            $resolvable = false;
+        }
         
-        return $isResolvedAlready || $definitionExists;
+        return $isResolvedAlready || $definitionExists || $resolvable;
     }
 
     private function resolve(string $id)
@@ -56,7 +62,7 @@ class DIYContainer implements ContainerInterface
         } 
         // has()でバリデートされているのでここに来るのはclass-string
         try {
-            $this->instances[$id] = $id();
+            $this->instances[$id] = new $id();
             return $this->instances[$id];
         } catch (\Throwable $th) {
             throw new ContainerException(
