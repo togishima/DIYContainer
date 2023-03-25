@@ -10,12 +10,15 @@ use Psr\Container\ContainerInterface;
 class DIYContainer implements ContainerInterface
 {
     /**
+     * @var array<string,mixed> $instances 解決されたものを一時的に保存しておく配列
+     */
+    private array $instances = [];
+
+    /**
      * @param array<string,Callable|class-string> $definitions 定義（マッピング）
-     * @param array<string,mixed> $instances 解決されたものを一時的に保存しておく配列
      */
     public function __construct(
-        private array $definitions,
-        private array $instances = []
+        private array $definitions
     ){
     }
 
