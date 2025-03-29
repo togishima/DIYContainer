@@ -67,16 +67,6 @@ class DIYContainer implements ContainerInterface
     /** @param class-string $className */
     private function build(string $className, string $id): mixed
     {
-        $this->resolved[$id] = new $className(...$this->resolveDependencies($className));
-        return $this->resolved[$id];
-    }
-
-    /**
-     * @param class-string $className
-     * @return array<mixed>
-     */
-    private function resolveDependencies(string $className): array
-    {
         /** @see https://www.php.net/manual/ja/reflectionclass.getconstructor.php */
         $constructor = (new ReflectionClass($className))->getConstructor();
         if ($constructor === null) {
@@ -87,11 +77,12 @@ class DIYContainer implements ContainerInterface
         foreach ($constructor->getParameters() as $param) {
             /** @see https://www.php.net/manual/ja/reflectionparameter.gettype.php */
             if ($param->getType() instanceof ReflectionNamedType) {
-                /** @var class-string $className */
-                $className = $param->getType()->getName();
-                $dependencies[] = $this->get($className);
+                /** @var class-string $dependency */
+                $dependency = $param->getType()->getName();
+                $dependencies[] = $this->get($dependency);
             }
         }
-        return $dependencies;
+        $this->resolved[$id] = new $className(...$dependencies);
+        return $this->resolved[$id];
     }
 }
