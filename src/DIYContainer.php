@@ -55,11 +55,11 @@ class DIYContainer implements ContainerInterface
                 ? $this->build($id, $id)
                 : throw new ContainerException('Entry ' . $id . ' Not Found');
         }
-        if (is_callable($this->definitions[$id])) {
-            return $this->definitions[$id]();
-        }
         if (is_string($this->definitions[$id]) && class_exists($this->definitions[$id])) {
             return $this->build($this->definitions[$id], $id);
+        }
+        if (is_callable($this->definitions[$id])) {
+            return $this->definitions[$id]();
         }
         return $this->definitions[$id];
     }
