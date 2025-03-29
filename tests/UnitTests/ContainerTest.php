@@ -14,11 +14,10 @@ use Tests\Sample\SampleInterface;
 class ContainerTest extends TestCase
 {
     #[Test]
-    public function test_has_登録されていればtrueを返す(): void
+    public function has_登録されていればtrueを返す(): void
     {
-        $container = new DIYContainer([
-            'foo' => 'bar'
-        ]);
+        $container = new DIYContainer();
+        $container->bind('foo', 'bar');
 
         $this->assertTrue($container->has('foo'));
     }
@@ -44,9 +43,8 @@ class ContainerTest extends TestCase
     #[Test]
     public function get_クロージャーで値を返すことができる(): void
     {
-        $container = new DIYContainer([
-            'integer' => fn() => 100 * 10
-        ]);
+        $container = new DIYContainer();
+        $container->bind('integer', fn() => 100 * 10);
 
         $concrete = $container->get('integer');
 
@@ -56,9 +54,8 @@ class ContainerTest extends TestCase
     #[Test]
     public function get_クラス名からインスタンスを返却できる(): void
     {
-        $container = new DIYContainer([
-            'b' => ClassB::class // クラス名で指定可能
-        ]);
+        $container = new DIYContainer();
+        $container->bind('b', ClassB::class);
 
         $concrete = $container->get('b');
 
@@ -68,9 +65,8 @@ class ContainerTest extends TestCase
     #[Test]
     public function get_入れ子の依存を解決できる()
     {
-        $container = new DIYContainer([
-            SampleInterface::class => ClassA::class
-        ]);
+        $container = new DIYContainer();
+        $container->bind(SampleInterface::class, ClassA::class);
 
         $concrete = $container->get(SampleInterface::class);
 
@@ -80,9 +76,8 @@ class ContainerTest extends TestCase
     #[Test]
     public function get_取得されるインスタンスはシングルトン(): void
     {
-        $container = new DIYContainer([
-            'a' => ClassA::class
-        ]);
+        $container = new DIYContainer();
+        $container->bind('a', ClassA::class);
 
         $concrete1 = $container->get('a');
         $concrete2 = $container->get('a');
@@ -94,9 +89,8 @@ class ContainerTest extends TestCase
     #[DataProvider('valueProvider')]
     public function get_格納した値を返すことができる(string $id, mixed $value): void
     {
-        $container = new DIYContainer([
-            $id => $value
-        ]);
+        $container = new DIYContainer();
+        $container->bind($id, $value);
 
         $concrete = $container->get($id);
 

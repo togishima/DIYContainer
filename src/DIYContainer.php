@@ -11,17 +11,15 @@ use Throwable;
 
 class DIYContainer implements ContainerInterface
 {
-    /**
-     * @var array<string,mixed> $resolved 生成済のインスタンス
-     */
+    /** @var array<string,mixed> $resolved 生成済のインスタンス */
     private array $resolved = [];
 
-    /**
-     * @param array<string|class-string,mixed> $definitions 解決方法の定義
-     */
-    public function __construct(
-        private array $definitions = []
-    ){
+    /** @var array<string|class-string,mixed> $definitions 解決方法の定義 */
+    private array $definitions = [];
+
+    public function bind(string $id, mixed $definition): void
+    {
+        $this->definitions[$id] = $definition;
     }
 
     public function get(string $id): mixed
