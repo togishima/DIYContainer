@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Sample\ClassA;
 use Tests\Sample\ClassB;
+use Tests\Sample\ClassC;
 use Tests\Sample\SampleInterface;
 
 class ContainerTest extends TestCase
@@ -107,5 +108,15 @@ class ContainerTest extends TestCase
             'null' => ['id' => 'null', 'value' => null],
             '配列' => ['id' => 'array', 'value' => [1, 2, 3]],
         ];
+    }
+
+    #[Test]
+    public function get_コンストラクタのないクラスの取得(): void
+    {
+        $container = new DIYContainer();
+
+        $concrete = $container->get(ClassC::class);
+
+        $this->assertTrue($concrete instanceof ClassC);
     }
 }

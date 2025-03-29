@@ -70,7 +70,8 @@ class DIYContainer implements ContainerInterface
         /** @see https://www.php.net/manual/ja/reflectionclass.getconstructor.php */
         $constructor = (new ReflectionClass($className))->getConstructor();
         if ($constructor === null) {
-            return throw new ContainerException('Class ' . $className . ' has no constructor');
+            $this->resolved[$id] = new $className();
+            return $this->resolved[$id];
         }
         $dependencies = [];
         /** @see https://www.php.net/manual/ja/reflectionfunctionabstract.getparameters.php */
