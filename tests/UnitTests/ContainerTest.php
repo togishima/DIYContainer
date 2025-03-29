@@ -2,74 +2,116 @@
 
 namespace Test\UnitTests;
 
-use PHPerKaigi2023\DIYContainer;
-use PHPerKaigi2023\Exceptions\NotFoundException;
+use PHPOdawara2025\DIYContainer;
+use PHPOdawara2025\Exceptions\NotFoundException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\Sample\ClassA;
 use Tests\Sample\ClassB;
 use Tests\Sample\SampleInterface;
 
 class ContainerTest extends TestCase
 {
-    private ContainerInterface $container;
-
-    public function setUp(): void
+    #[Test]
+    public function test_has_登録されていればtrueを返す(): void
     {
-        $this->container = new DIYContainer([
-            'foo' => fn() => 'bar',
-            ClassB::class => fn() => new ClassB(),
-            SampleInterface::class => fn() => new ClassA(new ClassB()),
+        $container = new DIYContainer([
+            'foo' => 'bar'
         ]);
+
+        $this->assertTrue($container->has('foo'));
     }
 
-    /**
-     * @test 
-     */
-    public function 与えられた文字列に対して定義があればその通りに返す()
+    #[Test]
+    public function has_登録されていなければfalseを返す(): void
     {
-        $bar = $this->container->get('foo');
-        $this->assertSame('bar', $bar);
-        $classB = $this->container->get(ClassB::class);
-        $this->assertTrue($classB instanceof ClassB);
+        $container = new DIYContainer();
+
+        $this->assertFalse($container->has('foo'));
     }
 
-    /**
-     * @test
-     */
-    public function 解決できない文字列には例外が投げられる()
+    #[Test]
+    public function get_解決できないものは例外が投げられる(): void
     {
+        $container = new DIYContainer();
+
         $this->expectException(NotFoundException::class);
-        $this->container->get('None');
+
+        $container->get('No Entry');
     }
 
-    /**
-     * @test
-     */
-    public function インターフェースとのマッピングができる()
+    #[Test]
+    public function get_クロージャーで値を返すことができる(): void
     {
-        $sample = $this->container->get(SampleInterface::class);
-        $this->assertTrue($sample instanceof ClassA);
+        $container = new DIYContainer([
+            'integer' => fn() => 100 * 10
+        ]);
+
+        $concrete = $container->get('integer');
+
+        $this->assertSame(1000, $concrete);
     }
 
-    // autowireing
-
-    /**
-     * @test
-     */
-    public function 与えられた文字列がクラス名だった場合オートロードできれば解決する()
+    #[Test]
+    public function get_クラス名からインスタンスを返却できる(): void
     {
-        $sample = $this->container->get(ClassB::class);
-        $this->assertTrue($sample instanceof ClassB);
+        $container = new DIYContainer([
+            'b' => ClassB::class // クラス名で指定可能
+        ]);
+
+        $concrete = $container->get('b');
+
+        $this->assertInstanceOf(ClassB::class, $concrete);
     }
 
-    /**
-     * @test
-     */
-    public function 入れ子になっているクラスを解決できる()
+    #[Test]
+    public function get_入れ子の依存を解決できる()
     {
-        $sample = $this->container->get(ClassA::class);
-        // ClassAの内部でClassBのfuga()が呼ばれるはず
-        $this->assertSame('piyo', $sample->hoge());
+        $container = new DIYContainer([
+            SampleInterface::class => ClassA::class
+        ]);
+
+        $concrete = $container->get(SampleInterface::class);
+
+        $this->assertInstanceOf(ClassB::class, $concrete->getClassB());
+    }
+
+    #[Test]
+    public function get_取得されるインスタンスはシングルトン(): void
+    {
+        $container = new DIYContainer([
+            'a' => ClassA::class
+        ]);
+
+        $concrete1 = $container->get('a');
+        $concrete2 = $container->get('a');
+
+        $this->assertSame($concrete1, $concrete2);
+    }
+
+    #[Test]
+    #[DataProvider('valueProvider')]
+    public function get_格納した値を返すことができる(string $id, mixed $value): void
+    {
+        $container = new DIYContainer([
+            $id => $value
+        ]);
+
+        $concrete = $container->get($id);
+
+        $this->assertSame($value, $concrete);
+    }
+
+    public static function valueProvider(): array
+    {
+        return [
+            '文字列' => ['id' => 'hoge', 'value' => 'fuga'],
+            '整数' => ['id' => 'integer', 'value' => 100],
+            '浮動小数' => ['id' => 'float', 'value' => 0.1],
+            '真偽値' => ['id' => 'bool', 'value' => false],
+            'null' => ['id' => 'null', 'value' => null],
+            '配列' => ['id' => 'array', 'value' => [1, 2, 3]],
+        ];
     }
 }

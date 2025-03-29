@@ -8,7 +8,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "PHPerKaigi2023\\":"src",
+            "PHPOdawara2025\\":"src",
             "Tests\\":"tests"
         }
     },
@@ -17,9 +17,8 @@
         "test": ["phpunit"]
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.7",
-        "phpunit/phpunit": "^9.5",
-        "symfony/var-dumper": "^6.1"
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^12.0"
     },
     "require": {
         "psr/container": "^2.0"

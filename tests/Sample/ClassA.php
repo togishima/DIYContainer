@@ -13,4 +13,9 @@ class ClassA implements SampleInterface
     {
         return $this->classB->fuga();
     }
+
+    public function getClassB(): ClassB
+    {
+        return $this->classB;
+    }
 }

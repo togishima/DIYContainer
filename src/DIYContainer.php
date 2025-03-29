@@ -1,99 +1,97 @@
 <?php
 
-namespace PHPerKaigi2023;
+namespace PHPOdawara2025;
 
-use PHPerKaigi2023\Exceptions\ContainerException;
-use PHPerKaigi2023\Exceptions\NotFoundException;
+use PHPOdawara2025\Exceptions\ContainerException;
+use PHPOdawara2025\Exceptions\NotFoundException;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionNamedType;
+use Throwable;
 
-/**
- * PSR-11実装の簡易自作コンテナ
- */
 class DIYContainer implements ContainerInterface
 {
     /**
-     * @var array<string,mixed> $instances 解決されたものを一時的に保存しておく配列
+     * @var array<string,mixed> $resolved 生成済のインスタンス
      */
-    private array $instances = [];
+    private array $resolved = [];
 
     /**
-     * @param array<string,Callable|class-string> $definitions 定義（マッピング）
+     * @param array<string|class-string,mixed> $definitions 解決方法の定義
      */
     public function __construct(
-        private array $definitions
+        private array $definitions = []
     ){
     }
 
-    public function get(string $id)
+    public function get(string $id): mixed
     {
-        /**
-         * 文字列に対応した「何か」を返す
-         * 返せるものがなければNotFoundExceptionを投げる
-         */
         if (!$this->has($id)) {
             throw new NotFoundException('Entry for ' . $id . ' not found');
         }
-        return $this->resolve($id);
+        return array_key_exists($id, $this->resolved)
+            ? $this->resolved[$id]
+            : $this->resolve($id);
     }
 
     public function has(string $id): bool
     {
-        /**
-         * 渡された文字列に対して返せるものがあるならtrue
-         * このメソッドがfalseを還したらget()はNotFountExceptionを返す
-         */
-        $isResolvedAlready = array_key_exists($id, $this->instances);
-        $definitionExists = array_key_exists($id, $this->definitions);
+        if (array_key_exists($id, $this->definitions)) {
+            return true;
+        }
+        if (array_key_exists($id, $this->resolved)) {
+            return true;
+        }
         try {
             $this->resolve($id);
-            $resolvable = true;
-        } catch (\Throwable $th) {
-            $resolvable = false;
+            return true;
+        } catch (Throwable $th) {
+            return false;
         }
-        
-        return $isResolvedAlready || $definitionExists || $resolvable;
     }
 
-    private function resolve(string $id)
+    private function resolve(string $id): mixed
     {
-        if (array_key_exists($id, $this->instances)) {
-            return $this->instances[$id];
+        if (!array_key_exists($id, $this->definitions)) {
+            return class_exists($id) 
+                ? $this->build($id, $id)
+                : throw new ContainerException('Entry ' . $id . ' Not Found');
         }
-        if (array_key_exists($id, $this->definitions) && is_callable($this->definitions[$id])) {
-            $callable = $this->definitions[$id];
-            return $callable();
-        } 
-        // has()でバリデートされているのでここに来るのはclass-string
-        try {
-            $dependencies = $this->resolveDependencies($id);
-            $this->instances[$id] = new $id(...$dependencies);
-            return $this->instances[$id];
-        } catch (\Throwable $th) {
-            throw new ContainerException(
-                message: 'Failed resolving ' . $id,
-                previous: $th
-            );
+        if (is_callable($this->definitions[$id])) {
+            return $this->definitions[$id]();
         }
+        if (is_string($this->definitions[$id]) && class_exists($this->definitions[$id])) {
+            return $this->build($this->definitions[$id], $id);
+        }
+        return $this->definitions[$id];
+    }
+
+    /** @param class-string $className */
+    private function build(string $className, string $id): mixed
+    {
+        $this->resolved[$id] = new $className(...$this->resolveDependencies($className));
+        return $this->resolved[$id];
     }
 
     /**
-     * 対象クラスのコンストラクタで定義されているクラスをインスタンス化
-     *
-     * @param string $className
-     * @return array
+     * @param class-string $className
+     * @return array<mixed>
      */
     private function resolveDependencies(string $className): array
     {
         /** @see https://www.php.net/manual/ja/reflectionclass.getconstructor.php */
         $constructor = (new ReflectionClass($className))->getConstructor();
+        if ($constructor === null) {
+            return throw new ContainerException('Class ' . $className . ' has no constructor');
+        }
         $dependencies = [];
         /** @see https://www.php.net/manual/ja/reflectionfunctionabstract.getparameters.php */
         foreach ($constructor->getParameters() as $param) {
             /** @see https://www.php.net/manual/ja/reflectionparameter.gettype.php */
             if ($param->getType() instanceof ReflectionNamedType) {
-                $dependencies[] = $this->get($param->getType()->getName());
+                /** @var class-string $className */
+                $className = $param->getType()->getName();
+                $dependencies[] = $this->get($className);
             }
         }
         return $dependencies;

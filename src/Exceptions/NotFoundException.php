@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPerKaigi2023\Exceptions;
+namespace PHPOdawara2025\Exceptions;
 
 use Psr\Container\NotFoundExceptionInterface;
 use LogicException;
